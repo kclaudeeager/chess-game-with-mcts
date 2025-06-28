@@ -400,11 +400,19 @@ async def join_invitation(invitation_code: str, request: JoinSessionRequest):
             use_rl=invitation_info.get('use_rl_engine', False)
         )
         
-        # Get the created session and update player info
+        # Get the created session and properly add both players using add_player method
         session = session_manager.get_session(actual_session_id)
         if session:
-            session.player_white = invitation_info.get('host_player_name', 'Host')
-            session.player_black = request.player_name
+            from models.chess_board import Color
+            # Add host as white player
+            session.add_player(invitation_info.get('host_player_name', 'Host'), Color.WHITE)
+            # Add guest as black player
+            session.add_player(request.player_name, Color.BLACK)
+            
+            print(f"🎮 Both players added to session {actual_session_id}")
+            print(f"   White: {session.player_white}")
+            print(f"   Black: {session.player_black}")
+            print(f"   Game started: {session.game_started}")
         
         return SessionInfoResponse(
             session_id=actual_session_id,

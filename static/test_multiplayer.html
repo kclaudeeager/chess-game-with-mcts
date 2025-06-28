@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multiplayer Test - Player 2</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .board { display: grid; grid-template-columns: repeat(8, 50px); grid-template-rows: repeat(8, 50px); gap: 1px; margin: 20px 0; }
+        .square { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
+        .light { background-color: #f0d9b5; }
+        .dark { background-color: #b58863; }
+        .selected { background-color: #ffd700 !important; }
+        .legal-move { background-color: #90EE90 !important; }
+        #status { font-weight: bold; margin: 10px 0; }
+        #moveHistory { height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+        .controls { margin: 10px 0; }
+        button { padding: 8px 15px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Chess - Player 2 (Bob)</h1>
+    <div id="status">Connecting...</div>
+    
+    <div class="controls">
+        <button onclick="connectToGame()">Connect to Game</button>
+        <button onclick="makeTestMove()">Make Test Move (e7-e5)</button>
+    </div>
+    
+    <div class="board" id="board"></div>
+    
+    <div id="moveHistory"></div>
+    
+    <script>
+        const SESSION_ID = '7f732f12-687f-4874-8da3-46c7fb051d65';
+        let socket = null;
+        let gameState = null;
+        
+        function connectToGame() {
+            // Connect WebSocket
+            socket = new WebSocket(`ws://localhost:8000/ws/${SESSION_ID}`);
+            
+            socket.onopen = function() {
+                document.getElementById('status').textContent = 'Connected via WebSocket';
+                console.log('WebSocket connected');
+                
+                // Also fetch initial game state
+                fetchGameState();
+            };
+            
+            socket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                console.log('WebSocket message:', data);
+                
+                if (data.type === 'move_made' || data.type === 'game_state') {
+                    if (data.data && data.data.game_state) {
+                        updateGameState(data.data.game_state);
+                    } else if (data.game_state) {
+                        updateGameState(data.game_state);
+                    }
+                }
+            };
+            
+            socket.onclose = function() {
+                document.getElementById('status').textContent = 'WebSocket disconnected';
+            };
+        }
+        
+        async function fetchGameState() {
+            try {
+                const response = await fetch(`http://localhost:8000/api/game/state?session_id=${SESSION_ID}`);
+                const data = await response.json();
+                updateGameState(data);
+            } catch (error) {
+                console.error('Error fetching game state:', error);
+            }
+        }
+        
+        function updateGameState(state) {
+            gameState = state;
+            renderBoard();
+            updateStatus();
+            updateMoveHistory();
+        }
+        
+        function renderBoard() {
+            if (!gameState) return;
+            
+            const boardElement = document.getElementById('board');
+            boardElement.innerHTML = '';
+            
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const square = document.createElement('div');
+                    square.className = `square ${(row + col) % 2 === 0 ? 'light' : 'dark'}`;
+                    square.dataset.row = row;
+                    square.dataset.col = col;
+                    
+                    const piece = gameState.board[row][col];
+                    if (piece) {
+                        const pieceSymbols = {
+                            'white': { 'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙' },
+                            'black': { 'K': '♚', 'Q': '♛', 'R': '♜', 'B': '♝', 'N': '♞', 'P': '♟' }
+                        };
+                        square.textContent = pieceSymbols[piece.color][piece.type];
+                    }
+                    
+                    boardElement.appendChild(square);
+                }
+            }
+        }
+        
+        function updateStatus() {
+            if (!gameState) return;
+            
+            const status = `${gameState.current_player === 'white' ? 'White' : 'Black'} to move`;
+            document.getElementById('status').textContent = status;
+        }
+        
+        function updateMoveHistory() {
+            if (!gameState) return;
+            
+            const historyElement = document.getElementById('moveHistory');
+            historyElement.innerHTML = `<strong>Move History:</strong><br>${gameState.move_history.join(', ')}`;
+        }
+        
+        async function makeTestMove() {
+            // Make move e7-e5 (black's response)
+            try {
+                const response = await fetch(`http://localhost:8000/api/game/move?session_id=${SESSION_ID}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ from: [1, 4], to: [3, 4] })
+                });
+                
+                if (response.ok) {
+                    console.log('Move made successfully');
+                } else {
+                    console.error('Move failed');
+                }
+            } catch (error) {
+                console.error('Error making move:', error);
+            }
+        }
+        
+        // Auto-connect on page load
+        setTimeout(connectToGame, 1000);
+    </script>
+</body>
+</html>

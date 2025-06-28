@@ -17,8 +17,8 @@ let gameState = {
     is_stalemate: false
 };
 
-// API configuration
-const API_BASE = 'http://localhost:8000/api';
+// API configuration - use current host instead of hardcoded localhost
+const API_BASE = `${window.location.protocol}//${window.location.host || 'localhost:8000'}/api`;
 
 // Sound management
 let audioContext = null;
@@ -275,8 +275,8 @@ function updateHumanVsHumanUI() {
 }
 
 function updateGameInfo() {
-    document.getElementById('currentPlayer').textContent = 
-        gameState.current_player === 'white' ? 'White' : 'Black';
+    const currentPlayerDisplay = gameState.current_player === 'white' ? 'White' : 'Black';
+    document.getElementById('currentPlayer').textContent = currentPlayerDisplay;
     
     document.getElementById('checkStatus').textContent = 
         gameState.is_check ? 'In Check!' : 'None';
@@ -308,18 +308,45 @@ function updateGameInfo() {
     } else {
         aiBtn.style.display = 'none';
     }
+    
+    // Update status message based on game mode and current state
+    if (gameState.is_checkmate) {
+        const winner = gameState.current_player === 'white' ? 'Black' : 'White';
+        document.getElementById('status').textContent = `🏆 Checkmate! ${winner} wins!`;
+    } else if (gameState.is_stalemate) {
+        document.getElementById('status').textContent = '🤝 Stalemate! Game is a draw!';
+    } else if (gameMode === 'human_vs_human') {
+        // In multiplayer, show whose turn it is
+        const turnMessage = `${currentPlayerDisplay}'s turn to move`;
+        if (playerName) {
+            const isMyTurn = (gameState.current_player === 'white' && playerName === document.getElementById('playerName')?.value) ||
+                           (gameState.current_player === 'black' && playerName === document.getElementById('joinPlayerName')?.value);
+            document.getElementById('status').textContent = isMyTurn ? `🎯 Your turn (${currentPlayerDisplay})` : `⏳ ${turnMessage}`;
+        } else {
+            document.getElementById('status').textContent = turnMessage;
+        }
+    } else if (gameMode === 'human_vs_ai') {
+        if (gameState.current_player === 'white') {
+            document.getElementById('status').textContent = '🎯 Your turn - Select a piece to move!';
+        } else {
+            document.getElementById('status').textContent = isAIThinking ? '🤖 AI is thinking...' : '🤖 AI to move';
+        }
+    }
 }
 
 function renderBoard() {
+    console.log('🎨 Rendering board...');
     const boardElement = document.getElementById('chessBoard');
     boardElement.innerHTML = '';
     
     // Safety check - ensure gameBoard is initialized
     if (!gameBoard || !Array.isArray(gameBoard)) {
-        console.error('gameBoard is not initialized or not an array:', gameBoard);
+        console.error('❌ gameBoard is not initialized or not an array:', gameBoard);
         return;
     }
     
+    console.log('📋 Board state when rendering:');
+    let pieceCount = 0;
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
             const square = document.createElement('div');
@@ -330,7 +357,9 @@ function renderBoard() {
             // Add piece if present
             const piece = gameBoard[row][col];
             if (piece) {
+                pieceCount++;
                 square.textContent = pieceSymbols[piece.color][piece.type];
+                console.log(`   ${String.fromCharCode(97 + col)}${8 - row}: ${piece.color} ${piece.type}`);
                 
                 // Highlight king in check
                 if (piece.type === 'K' && gameState.is_check && piece.color === gameState.current_player) {
@@ -343,6 +372,9 @@ function renderBoard() {
             boardElement.appendChild(square);
         }
     }
+    
+    console.log(`✅ Board rendered with ${pieceCount} pieces`);
+    console.log(`🎯 Current player: ${gameState.current_player}, Legal moves: ${legalMoves.length}`);
     
     updateSquareHighlights();
 }
@@ -382,8 +414,8 @@ async function handleSquareClick(row, col) {
     if (isAIThinking) return;
     if (gameState.is_checkmate || gameState.is_stalemate) return;
     
-    // In Human vs Human mode, allow both colors to move
-    // In Human vs AI mode, only allow white moves
+    // In Human vs AI mode, only allow white moves (human is white, AI is black)
+    // In Human vs Human mode, allow both colors to move on their turn
     if (gameMode === 'human_vs_ai' && gameState.current_player !== 'white') return;
     
     const piece = gameBoard[row][col];
@@ -430,14 +462,16 @@ async function makeMove(fromRow, fromCol, toRow, toCol, capturedPiece = null) {
     try {
         // Check if we have a session ID
         if (!sessionId) {
-            console.error('No session ID available');
+            console.error('❌ No session ID available');
             document.getElementById('status').textContent = 'Session error - please refresh the page';
             return;
         }
         
-        console.log(`Making move: (${fromRow},${fromCol}) → (${toRow},${toCol})`);
+        const fromSquare = String.fromCharCode(97 + fromCol) + (8 - fromRow);
+        const toSquare = String.fromCharCode(97 + toCol) + (8 - toRow);
+        console.log(`🎯 Making move: ${fromSquare} → ${toSquare} (${fromRow},${fromCol}) → (${toRow},${toCol})`);
         if (capturedPiece) {
-            console.log('Capturing piece:', capturedPiece);
+            console.log('💥 Capturing piece:', capturedPiece);
         }
         
         // Include session ID as query parameter
@@ -449,17 +483,17 @@ async function makeMove(fromRow, fromCol, toRow, toCol, capturedPiece = null) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                from_row: fromRow,
-                from_col: fromCol,
-                to_row: toRow,
-                to_col: toCol
+                from: [fromRow, fromCol],
+                to: [toRow, toCol]
             })
         });
         
         const data = await response.json();
-        console.log('Move response:', data);
+        console.log('📤 Move response:', data);
         
         if (data.success) {
+            console.log('✅ Move accepted by backend');
+            
             // Play appropriate sound based on move type
             if (capturedPiece) {
                 if (capturedPiece.type === 'Q') {
@@ -472,6 +506,7 @@ async function makeMove(fromRow, fromCol, toRow, toCol, capturedPiece = null) {
                 gameSounds.move();
             }
             
+            console.log('🔄 Updating game state and rendering board...');
             updateGameState(data);
             renderBoard();
             
@@ -1036,7 +1071,8 @@ setInterval(async () => {
             updateConnectionStatus(response.ok);
         } else {
             // Just check if backend is alive when no session - use root endpoint
-            const response = await fetch('http://localhost:8000/', {
+            const baseUrl = `${window.location.protocol}//${window.location.host || 'localhost:8000'}`;
+            const response = await fetch(baseUrl, {
                 method: 'GET',
                 mode: 'cors'
             });
@@ -1064,7 +1100,10 @@ function connectWebSocket() {
     }
     
     try {
-        const wsUrl = `ws://localhost:8000/ws/${sessionId}`;
+        // Use current host instead of hardcoded localhost for WebSocket connection
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsHost = window.location.host || 'localhost:8000';
+        const wsUrl = `${wsProtocol}//${wsHost}/ws/${sessionId}`;
         console.log('Connecting to WebSocket:', wsUrl);
         socket = new WebSocket(wsUrl);
         
@@ -1108,9 +1147,12 @@ function connectWebSocket() {
 }
 
 function handleWebSocketMessage(data) {
+    console.log('📨 Processing WebSocket message:', data);
+    
     switch (data.type) {
         case 'game_update':
             if (data.game_state) {
+                console.log('🔄 Updating game state from WebSocket');
                 updateGameState(data.game_state);
                 renderBoard();
                 updateGameInfo();
@@ -1120,11 +1162,23 @@ function handleWebSocketMessage(data) {
             document.getElementById('status').textContent = data.message || 'A player has joined the game';
             break;
         case 'move_made':
-            if (data.game_state) {
-                updateGameState(data.game_state);
+            if (data.game_state || data.data?.game_state) {
+                console.log('♟️ Move made via WebSocket, updating board');
+                const gameStateData = data.game_state || data.data?.game_state;
+                updateGameState(gameStateData);
                 renderBoard();
                 updateGameInfo();
-                playMoveSound();
+                
+                // Play move sound for real-time moves
+                gameSounds.move();
+                
+                // Check for special game states
+                if (gameState.is_check) {
+                    setTimeout(() => gameSounds.check(), 200);
+                }
+                if (gameState.is_checkmate) {
+                    setTimeout(() => gameSounds.checkmate(), 300);
+                }
             }
             break;
         case 'game_finished':

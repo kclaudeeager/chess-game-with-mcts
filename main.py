@@ -454,10 +454,10 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                 await websocket.send_text(response)
                 
     except WebSocketDisconnect:
-        await websocket_manager.disconnect(websocket, session_id)
+        websocket_manager.disconnect(websocket)
     except Exception as e:
         print(f"❌ WebSocket error: {e}")
-        await websocket_manager.disconnect(websocket, session_id)
+        websocket_manager.disconnect(websocket)
 
 # ===== ADMIN/STATS ENDPOINTS =====
 
@@ -572,6 +572,25 @@ async def make_move_legacy(request: Request):
         
         if not success:
             raise HTTPException(status_code=400, detail="Invalid move")
+        
+        # Broadcast move to all connected players via WebSocket
+        if session.mode == GameMode.HUMAN_VS_HUMAN:
+            move_message = {
+                "type": "move_made",
+                "data": {
+                    "from": [from_row, from_col],
+                    "to": [to_row, to_col],
+                    "promotion": promotion,
+                    "game_state": session.to_dict(),
+                    "success": True
+                }
+            }
+            try:
+                import asyncio
+                loop = asyncio.get_event_loop()
+                loop.create_task(websocket_manager.broadcast_to_session(session_id, move_message))
+            except Exception as e:
+                print(f"⚠️ Failed to broadcast move via WebSocket: {e}")
         
         # Check if game is finished
         game_result = session.board.get_game_result()

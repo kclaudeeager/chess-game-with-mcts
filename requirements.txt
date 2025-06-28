@@ -1,5 +1,32 @@
+# FastAPI and web framework dependencies
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
-python-multipart==0.0.6
 jinja2==3.1.2
+python-multipart==0.0.6
 aiofiles==23.2.1
+
+# WebSocket support
+websockets==11.0.3
+
+# API dependencies  
+pydantic==2.5.0
+
+# Testing dependencies (optional, for development)
+requests==2.31.0
+pytest==7.4.3
+pytest-asyncio==0.21.1
+
+# Standard library modules used (no pip install needed):
+# - asyncio (built-in)
+# - threading (built-in)  
+# - time (built-in)
+# - uuid (built-in)
+# - json (built-in)
+# - sqlite3 (built-in)
+# - math (built-in)
+# - random (built-in)
+# - copy (built-in)
+# - enum (built-in)
+# - collections (built-in)
+# - typing (built-in)
+# - dataclasses (built-in)

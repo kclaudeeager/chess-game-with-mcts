@@ -1,0 +1,25 @@
+{
+  "name": "MCTS Chess Engine",
+  "version": "1.0.0",
+  "description": "Chess engine using Monte Carlo Tree Search with FastAPI backend",
+  "main": "main.py",
+  "scripts": {
+    "start": "python main.py",
+    "dev": "uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "setup": "./run.sh"
+  },
+  "dependencies": {
+    "fastapi": "0.104.1",
+    "uvicorn": "0.24.0",
+    "python-multipart": "0.0.6",
+    "jinja2": "3.1.2",
+    "aiofiles": "23.2.1"
+  },
+  "author": "MCTS Chess Developer",
+  "license": "MIT",
+  "keywords": ["chess", "mcts", "ai", "fastapi", "monte-carlo"],
+  "repository": {
+    "type": "git",
+    "url": "."
+  }
+}

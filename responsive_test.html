@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCTS Chess - Responsive Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .screen-preview {
+            display: inline-block;
+            margin: 20px;
+            border: 3px solid #333;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            background: white;
+        }
+        .mobile { width: 375px; height: 667px; }
+        .tablet { width: 768px; height: 1024px; }
+        .desktop { width: 1200px; height: 800px; }
+        .screen-label {
+            background: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        iframe {
+            width: 100%;
+            height: calc(100% - 40px);
+            border: none;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .features {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .features h2 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+        .features ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .features li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .features li:before {
+            content: "✅ ";
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 MCTS Chess Engine - Responsive Design Test</h1>
+        
+        <div class="features">
+            <h2>📱 Responsive Features Implemented:</h2>
+            <ul>
+                <li>Fully responsive layout that adapts to all screen sizes</li>
+                <li>Touch-friendly buttons (minimum 44px touch targets)</li>
+                <li>Flexible chess board sizing using CSS variables</li>
+                <li>Mobile-first approach with progressive enhancement</li>
+                <li>Landscape orientation support for mobile devices</li>
+                <li>Tablet-specific layout optimizations</li>
+                <li>Large screen (4K, ultra-wide) support</li>
+                <li>Print-friendly styles</li>
+                <li>Proper viewport meta tags and PWA manifest</li>
+                <li>Scalable typography using clamp() functions</li>
+                <li>CSS Grid with fallbacks for older browsers</li>
+                <li>Accessibility improvements for keyboard navigation</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center;">
+            <h2>🖥️ Screen Size Previews:</h2>
+            <p>Click any preview to open the full chess application:</p>
+            
+            <div class="screen-preview mobile">
+                <div class="screen-label">📱 Mobile (375px)</div>
+                <iframe src="http://localhost:8000" title="Mobile Preview"></iframe>
+            </div>
+            
+            <div class="screen-preview tablet">
+                <div class="screen-label">📱 Tablet (768px)</div>
+                <iframe src="http://localhost:8000" title="Tablet Preview"></iframe>
+            </div>
+            
+            <div class="screen-preview desktop">
+                <div class="screen-label">💻 Desktop (1200px)</div>
+                <iframe src="http://localhost:8000" title="Desktop Preview"></iframe>
+            </div>
+        </div>
+
+        <div class="features">
+            <h2>🎯 Responsive Breakpoints:</h2>
+            <ul>
+                <li><strong>320px and below:</strong> Very small screens (older phones)</li>
+                <li><strong>480px and below:</strong> Mobile phones (portrait)</li>
+                <li><strong>768px and below:</strong> Tablets (portrait) and large phones</li>
+                <li><strong>1024px and below:</strong> Tablets (landscape) and small laptops</li>
+                <li><strong>1440px and above:</strong> Large desktops and monitors</li>
+                <li><strong>1920px and above:</strong> Ultra-wide and 4K displays</li>
+                <li><strong>Landscape mode:</strong> Special handling for mobile landscape</li>
+            </ul>
+        </div>
+
+        <div class="features">
+            <h2>🎮 Testing Instructions:</h2>
+            <ul>
+                <li>Open the main application: <a href="http://localhost:8000" target="_blank">http://localhost:8000</a></li>
+                <li>Resize your browser window to test different screen sizes</li>
+                <li>Use browser developer tools to simulate mobile devices</li>
+                <li>Try both portrait and landscape orientations on mobile</li>
+                <li>Test touch interactions on touch devices</li>
+                <li>Verify that all elements remain accessible and usable</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

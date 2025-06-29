@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Players Panel Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #2a2a2a; color: white; }
+        #playersPanel { margin: 20px 0; padding: 15px; background-color: #1a1a1a; border-radius: 8px; }
+        button { padding: 10px; margin: 10px; }
+        select { padding: 5px; margin: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Players Panel Test</h1>
+    
+    <div>
+        <label>Game Mode: </label>
+        <select id="gameModeSelect" onchange="changeGameMode()">
+            <option value="human_vs_ai">Human vs AI</option>
+            <option value="human_vs_human">Human vs Human</option>
+        </select>
+    </div>
+    
+    <div>
+        <button onclick="setTestPlayers()">Set Test Players</button>
+        <button onclick="clearPlayers()">Clear Players</button>
+    </div>
+    
+    <!-- Players Panel (copied from main template) -->
+    <div id="playersPanel" style="display: none; margin-bottom: 20px; padding: 15px; background-color: #1a1a1a; border-radius: 8px;">
+        <h4 style="margin-bottom: 10px; color: #FFD700;">👥 Players</h4>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="text-align: center; flex: 1;">
+                <div style="font-size: 20px; margin-bottom: 5px;">♔</div>
+                <div id="whitePlayerName" style="font-weight: bold;">White</div>
+                <div id="whitePlayerStatus" style="font-size: 12px; opacity: 0.8;">Waiting...</div>
+            </div>
+            <div style="color: #FFD700; font-size: 24px; margin: 0 20px;">VS</div>
+            <div style="text-align: center; flex: 1;">
+                <div style="font-size: 20px; margin-bottom: 5px;">♚</div>
+                <div id="blackPlayerName" style="font-weight: bold;">Black</div>
+                <div id="blackPlayerStatus" style="font-size: 12px; opacity: 0.8;">Waiting...</div>
+            </div>
+        </div>
+        <div id="currentTurnIndicator" style="text-align: center; margin-top: 10px; font-size: 14px; color: #FFD700;">
+            Waiting for players...
+        </div>
+    </div>
+    
+    <div id="debugInfo" style="margin-top: 20px; padding: 10px; background: #333; border-radius: 5px;">
+        <h4>Debug Info:</h4>
+        <div id="debugContent"></div>
+    </div>
+    
+    <script>
+        // Simulate the game variables
+        let gameMode = 'human_vs_ai';
+        let gameState = {
+            current_player: 'white',
+            is_check: false,
+            is_checkmate: false,
+            is_stalemate: false
+        };
+        
+        function changeGameMode() {
+            const select = document.getElementById('gameModeSelect');
+            gameMode = select.value;
+            console.log('Game mode changed to:', gameMode);
+            updatePlayersPanel();
+            updateDebugInfo();
+        }
+        
+        function setTestPlayers() {
+            gameState.player_white = 'Alice';
+            gameState.player_black = 'Bob';
+            updatePlayersPanel();
+            updateDebugInfo();
+        }
+        
+        function clearPlayers() {
+            delete gameState.player_white;
+            delete gameState.player_black;
+            updatePlayersPanel();
+            updateDebugInfo();
+        }
+        
+        function updatePlayersPanel() {
+            const playersPanel = document.getElementById('playersPanel');
+            
+            if (gameMode === 'human_vs_human') {
+                playersPanel.style.display = 'block';
+                
+                // Get player names from game state or fallback to defaults
+                const whitePlayerName = gameState.player_white || 'White Player';
+                const blackPlayerName = gameState.player_black || 'Black Player';
+                
+                // Update player names
+                document.getElementById('whitePlayerName').textContent = whitePlayerName;
+                document.getElementById('blackPlayerName').textContent = blackPlayerName;
+                
+                // Update player status based on connection and turn
+                const whiteStatus = gameState.current_player === 'white' ? '🎯 Your turn' : '⏳ Waiting';
+                const blackStatus = gameState.current_player === 'black' ? '🎯 Your turn' : '⏳ Waiting';
+                
+                document.getElementById('whitePlayerStatus').textContent = whiteStatus;
+                document.getElementById('blackPlayerStatus').textContent = blackStatus;
+                
+                // Update turn indicator
+                const currentTurnIndicator = document.getElementById('currentTurnIndicator');
+                if (gameState.current_player === 'white') {
+                    currentTurnIndicator.textContent = `${whitePlayerName}'s turn`;
+                    currentTurnIndicator.style.color = '#FFD700';
+                } else {
+                    currentTurnIndicator.textContent = `${blackPlayerName}'s turn`;
+                    currentTurnIndicator.style.color = '#FFD700';
+                }
+                
+                // Highlight current player
+                const whiteDiv = document.getElementById('whitePlayerName').parentElement;
+                const blackDiv = document.getElementById('blackPlayerName').parentElement;
+                
+                if (gameState.current_player === 'white') {
+                    whiteDiv.style.backgroundColor = '#3a3a2a';
+                    whiteDiv.style.borderRadius = '5px';
+                    whiteDiv.style.padding = '5px';
+                    blackDiv.style.backgroundColor = 'transparent';
+                    blackDiv.style.padding = '5px';
+                } else {
+                    blackDiv.style.backgroundColor = '#3a3a2a';
+                    blackDiv.style.borderRadius = '5px';
+                    blackDiv.style.padding = '5px';
+                    whiteDiv.style.backgroundColor = 'transparent';
+                    whiteDiv.style.padding = '5px';
+                }
+                
+            } else {
+                playersPanel.style.display = 'none';
+            }
+        }
+        
+        function updateDebugInfo() {
+            const debugContent = document.getElementById('debugContent');
+            debugContent.innerHTML = `
+                <strong>Game Mode:</strong> ${gameMode}<br>
+                <strong>Panel Display:</strong> ${document.getElementById('playersPanel').style.display}<br>
+                <strong>White Player:</strong> ${gameState.player_white || 'undefined'}<br>
+                <strong>Black Player:</strong> ${gameState.player_black || 'undefined'}<br>
+                <strong>Current Player:</strong> ${gameState.current_player}
+            `;
+        }
+        
+        // Initialize
+        updatePlayersPanel();
+        updateDebugInfo();
+    </script>
+</body>
+</html>

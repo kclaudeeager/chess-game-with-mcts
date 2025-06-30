@@ -32,42 +32,11 @@
         </div>
         
         <div class="chess-board-container">
-            <div class="info-panel game-info sticky-status" style="margin-bottom: 15px;">
-                <div id="gameStatus">
-                    <p><strong>Current Player:</strong> <span id="currentPlayer">White</span></p>
-                    <p><strong>Check Status:</strong> <span id="checkStatus">None</span></p>
-                    <p><strong>Game State:</strong> <span id="gameState">In Progress</span></p>
-                </div>
-                <h4 style="margin-top: 20px; color: #FFD700;">Material Balance</h4>
-                <div id="materialBalance">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <div>
-                            <strong>White:</strong> <span id="whiteMaterial">39</span> points
-                            <div id="whitePieces" style="font-size: 12px; opacity: 0.8;"></div>
-                        </div>
-                        <div>
-                            <strong>Black:</strong> <span id="blackMaterial">39</span> points
-                            <div id="blackPieces" style="font-size: 12px; opacity: 0.8;"></div>
-                        </div>
-                    </div>
-                    <div style="text-align: center;">
-                        <strong>Balance:</strong> <span id="materialDifference">Even</span>
-                    </div>
-                </div>
-                <div style="margin-top: 20px; font-size: 14px; opacity: 0.8;">
-                    <p><strong>Instructions:</strong></p>
-                    <p>• Click a piece to select it</p>
-                    <p>• Click a highlighted square to move</p>
-                    <p id="gameModeInstructions">• You play as White, AI as Black</p>
-                    <p><strong>Mode:</strong> <span id="currentGameMode">Human vs AI</span></p>
-                </div>
-                <h4 style="margin-top: 20px; color: #FFD700;">Move History</h4>
-                <div class="move-history" id="moveHistory">
-                    <p>Game started. White to move.</p>
-                </div>
+            <div class="game-header">
+                <h1 class="game-title">♔ MCTS Chess Engine ♛</h1>
+                <p class="game-subtitle">Advanced Monte Carlo Tree Search Chess AI</p>
             </div>
             
-            <h1>♔ MCTS Chess Engine ♛</h1>
             <div class="status" id="status">Loading game...</div>
             
             <div class="chess-board" id="chessBoard">
@@ -97,42 +66,43 @@
                 </div>
                 <div id="rlStatus" style="margin-top: 8px; font-size: 12px; opacity: 0.7;"></div>
             </div>
-            
-            <!-- Player name input for human vs human mode -->
-            <div id="playerSetup" style="display: none; margin-top: 15px; padding: 15px; background-color: #2a2a2a; border-radius: 8px;">
-                <h4 style="margin-bottom: 10px; color: #FFD700;">🎮 Player Setup</h4>
-                <div style="margin-bottom: 10px;">
-                    <label for="playerName" style="display: block; margin-bottom: 5px;">Your Name:</label>
-                    <input type="text" id="playerName" placeholder="Enter your name" style="width: 200px; padding: 5px; border-radius: 3px; border: 1px solid #ccc;">
-                    <button onclick="setPlayerName()" id="setNameBtn" style="margin-left: 10px; padding: 5px 10px;">Set Name</button>
-                </div>
-                <div id="playerStatus" style="font-size: 14px; opacity: 0.9;"></div>
+        </div>
+        
+        <div class="info-panel game-info sticky-status">
+            <div id="gameStatus">
+                <p><strong>Current Player:</strong> <span id="currentPlayer">White</span></p>
+                <p><strong>Check Status:</strong> <span id="checkStatus">None</span></p>
+                <p><strong>Game State:</strong> <span id="gameState">In Progress</span></p>
             </div>
-            
-            <!-- Invitation link for human vs human mode -->
-            <div id="inviteLink" style="display: none; margin-top: 15px; padding: 15px; background-color: #2a2a2a; border-radius: 8px;">
-                <h4 style="margin-bottom: 10px; color: #FFD700;">🔗 Invite a Friend</h4>
-                <p style="margin-bottom: 10px; font-size: 14px;">Share this link with your friend to join the game:</p>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="text" id="inviteUrl" readonly style="flex: 1; padding: 8px; border-radius: 3px; border: 1px solid #ccc; font-family: monospace; font-size: 12px;">
-                    <button onclick="copyInviteLink()" style="padding: 8px 12px; white-space: nowrap;">📋 Copy</button>
+            <h4 style="margin-top: 20px; color: #FFD700;">Material Balance</h4>
+            <div id="materialBalance">
+                <div class="material-container">
+                    <div class="material-section">
+                        <strong>White:</strong> <span id="whiteMaterial">39</span> points
+                        <div id="whitePieces" class="piece-count"></div>
+                    </div>
+                    <div class="material-section">
+                        <strong>Black:</strong> <span id="blackMaterial">39</span> points
+                        <div id="blackPieces" class="piece-count"></div>
+                    </div>
                 </div>
-                <div id="inviteStatus" style="margin-top: 10px; font-size: 14px; opacity: 0.9;"></div>
+                <div class="material-balance">
+                    <strong>Balance:</strong> <span id="materialDifference">Even</span>
+                </div>
             </div>
-            
-            <!-- Join game interface for invited players -->
-            <div id="joinGame" style="display: none; margin-top: 15px; padding: 15px; background-color: #2a2a2a; border-radius: 8px;">
-                <h4 style="margin-bottom: 10px; color: #FFD700;">🎯 Join Game</h4>
-                <p id="joinGameInfo" style="margin-bottom: 10px; font-size: 14px;"></p>
-                <div style="margin-bottom: 10px;">
-                    <label for="joinPlayerName" style="display: block; margin-bottom: 5px;">Your Name:</label>
-                    <input type="text" id="joinPlayerName" placeholder="Enter your name" style="width: 200px; padding: 5px; border-radius: 3px; border: 1px solid #ccc;">
-                    <button onclick="joinGameSession()" id="joinGameBtn" style="margin-left: 10px; padding: 5px 10px;">Join Game</button>
-                </div>
+            <div style="margin-top: 20px; font-size: 14px; opacity: 0.8;">
+                <p><strong>Instructions:</strong></p>
+                <p>• Click a piece to select it</p>
+                <p>• Click a highlighted square to move</p>
+                <p id="gameModeInstructions">• You play as White, AI as Black</p>
+                <p><strong>Mode:</strong> <span id="currentGameMode">Human vs AI</span></p>
+            </div>
+            <h4 style="margin-top: 20px; color: #FFD700;">Move History</h4>
+            <div class="move-history" id="moveHistory">
+                <p>Game started. White to move.</p>
             </div>
         </div>
     </div>
-
     <script src="/static/js/main.js"></script>
 </body>
 </html>

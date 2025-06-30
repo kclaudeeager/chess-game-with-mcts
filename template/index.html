@@ -12,23 +12,61 @@
     <div class="game-container">
         <div class="info-panel mcts-info">
             <h3>🧠 MCTS Chess Engine</h3>
-            <p><strong>Algorithm:</strong> Monte Carlo Tree Search</p>
-            <p><strong>Simulations:</strong> ~500 per move</p>
-            <p><strong>Time Limit:</strong> 3 seconds</p>
-            <p><strong>Search Depth:</strong> Variable</p>
-            
-            <h4 style="margin-top: 20px; color: #FFD700;">How MCTS Works:</h4>
-            <p>1. <strong>Selection:</strong> Navigate tree using UCB1</p>
-            <p>2. <strong>Expansion:</strong> Add new nodes</p>
-            <p>3. <strong>Simulation:</strong> Random playouts</p>
-            <p>4. <strong>Backpropagation:</strong> Update statistics</p>
-            
-            <p style="margin-top: 15px; font-size: 14px; opacity: 0.9;">
-                The AI builds a search tree by exploring promising moves and uses random simulations to evaluate positions. Unlike traditional engines, it doesn't rely on deep tactical analysis but rather statistical sampling.
-            </p>
+            <details>
+                <summary style="font-size: 1em; cursor: pointer; color: #FFD700; outline: none; margin-bottom: 10px;">Engine & Algorithm Details</summary>
+                <div>
+                    <p><strong>Algorithm:</strong> Monte Carlo Tree Search</p>
+                    <p><strong>Simulations:</strong> ~500 per move</p>
+                    <p><strong>Time Limit:</strong> 3 seconds</p>
+                    <p><strong>Search Depth:</strong> Variable</p>
+                    <h4 style="margin-top: 20px; color: #FFD700;">How MCTS Works:</h4>
+                    <p>1. <strong>Selection:</strong> Navigate tree using UCB1</p>
+                    <p>2. <strong>Expansion:</strong> Add new nodes</p>
+                    <p>3. <strong>Simulation:</strong> Random playouts</p>
+                    <p>4. <strong>Backpropagation:</strong> Update statistics</p>
+                    <p style="margin-top: 15px; font-size: 14px; opacity: 0.9;">
+                        The AI builds a search tree by exploring promising moves and uses random simulations to evaluate positions. Unlike traditional engines, it doesn't rely on deep tactical analysis but rather statistical sampling.
+                    </p>
+                </div>
+            </details>
         </div>
         
         <div class="chess-board-container">
+            <div class="info-panel game-info sticky-status" style="margin-bottom: 15px;">
+                <div id="gameStatus">
+                    <p><strong>Current Player:</strong> <span id="currentPlayer">White</span></p>
+                    <p><strong>Check Status:</strong> <span id="checkStatus">None</span></p>
+                    <p><strong>Game State:</strong> <span id="gameState">In Progress</span></p>
+                </div>
+                <h4 style="margin-top: 20px; color: #FFD700;">Material Balance</h4>
+                <div id="materialBalance">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <div>
+                            <strong>White:</strong> <span id="whiteMaterial">39</span> points
+                            <div id="whitePieces" style="font-size: 12px; opacity: 0.8;"></div>
+                        </div>
+                        <div>
+                            <strong>Black:</strong> <span id="blackMaterial">39</span> points
+                            <div id="blackPieces" style="font-size: 12px; opacity: 0.8;"></div>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <strong>Balance:</strong> <span id="materialDifference">Even</span>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; font-size: 14px; opacity: 0.8;">
+                    <p><strong>Instructions:</strong></p>
+                    <p>• Click a piece to select it</p>
+                    <p>• Click a highlighted square to move</p>
+                    <p id="gameModeInstructions">• You play as White, AI as Black</p>
+                    <p><strong>Mode:</strong> <span id="currentGameMode">Human vs AI</span></p>
+                </div>
+                <h4 style="margin-top: 20px; color: #FFD700;">Move History</h4>
+                <div class="move-history" id="moveHistory">
+                    <p>Game started. White to move.</p>
+                </div>
+            </div>
+            
             <h1>♔ MCTS Chess Engine ♛</h1>
             <div class="status" id="status">Loading game...</div>
             
@@ -90,50 +128,6 @@
                     <label for="joinPlayerName" style="display: block; margin-bottom: 5px;">Your Name:</label>
                     <input type="text" id="joinPlayerName" placeholder="Enter your name" style="width: 200px; padding: 5px; border-radius: 3px; border: 1px solid #ccc;">
                     <button onclick="joinGameSession()" id="joinGameBtn" style="margin-left: 10px; padding: 5px 10px;">Join Game</button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="info-panel game-info">
-            <h3>📊 Game Status</h3>
-            <div id="gameStatus">
-                <p><strong>Current Player:</strong> <span id="currentPlayer">White</span></p>
-                <p><strong>Check Status:</strong> <span id="checkStatus">None</span></p>
-                <p><strong>Game State:</strong> <span id="gameState">In Progress</span></p>
-            </div>
-            
-            <h4 style="margin-top: 20px; color: #FFD700;">Material Balance</h4>
-            <div id="materialBalance">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <div>
-                        <strong>White:</strong> <span id="whiteMaterial">39</span> points
-                        <div id="whitePieces" style="font-size: 12px; opacity: 0.8;"></div>
-                    </div>
-                    <div>
-                        <strong>Black:</strong> <span id="blackMaterial">39</span> points
-                        <div id="blackPieces" style="font-size: 12px; opacity: 0.8;"></div>
-                    </div>
-                </div>
-                <div style="text-align: center;">
-                    <strong>Balance:</strong> <span id="materialDifference">Even</span>
-                </div>
-            </div>
-            
-            <h4 style="margin-top: 20px; color: #FFD700;">Move History</h4>
-            <div class="move-history" id="moveHistory">
-                <p>Game started. White to move.</p>
-            </div>
-            
-            <div style="margin-top: 20px; font-size: 14px; opacity: 0.8;">
-                <p><strong>Instructions:</strong></p>
-                <p>• Click a piece to select it</p>
-                <p>• Click a highlighted square to move</p>
-                <p id="gameModeInstructions">• You play as White, AI as Black</p>
-                <p><strong>Mode:</strong> <span id="currentGameMode">Human vs AI</span></p>
-                
-                <div style="margin-top: 10px; font-size: 12px;">
-                    <p><strong>Piece Values:</strong></p>
-                    <p>♕/♛ Queen = 9, ♖/♜ Rook = 5, ♗/♝ Bishop = 3, ♘/♞ Knight = 3, ♙/♟ Pawn = 1</p>
                 </div>
             </div>
         </div>
